@@ -1,6 +1,6 @@
 # Readme
 
-## Demo repo
+## Spring REST Docs demo repo
 
 How do you document responses which contains recursive data structures.
 
