@@ -12,9 +12,10 @@ import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration
-import org.springframework.restdocs.payload.JsonFieldType
+import org.springframework.restdocs.payload.PayloadDocumentation.beneathPath
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -50,15 +51,19 @@ class RecursiveDemoTest {
             .andExpect(status().isOk)
             .andDo(document("example-test",
                 responseFields(
-                    fieldWithPath("id")
-                        .type(JsonFieldType.STRING)
-                        .description("The id of the root node"),
-                    fieldWithPath("type")
-                        .type(JsonFieldType.STRING)
-                        .description("The type of the root node")
-                )
+                    fieldWithPath("id").description("The id of the root node"),
+                    fieldWithPath("type").description("The type of the root node")),
+                responseFields(beneathPath("left.left").withSubsectionId("leaf"),
+                    fieldWithPath("id").description("ID of the node"),
+                    fieldWithPath("type").description("Type of the node. Always 'leaf' for leaf nodes"),
+                    fieldWithPath("value").description("Value of the node")),
+                responseFields(beneathPath("left").withSubsectionId("subtree"),
+                    fieldWithPath("id").description("ID of the node"),
+                    fieldWithPath("type").description("Type of the node. Always 'subtree' for nodes with children"),
+                    subsectionWithPath("left").description("Left-hand child node. Either a subtree or a leaf"),
+                    subsectionWithPath("right").description("Right-hand child node. Either a subtree or a leaf"))
             ))
 
-        // Test failes due to not documented properties. How can the recursive schema be documented?
+        // Test fails due to not documented properties. How can the recursive schema be documented?
     }
 }
